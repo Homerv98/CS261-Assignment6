@@ -217,9 +217,15 @@ class HashMap:
 
     def clear(self) -> None:
         """
-        TODO: Write this implementation
+        Clear the contents of the hash map.
         """
-        pass
+        self._buckets = DynamicArray()
+
+        for _ in range(self._capacity)
+            self._buckets.append(LinkedList())
+
+        self._size = 0
+
 
 
 def find_mode(da: DynamicArray) -> tuple[DynamicArray, int]:
