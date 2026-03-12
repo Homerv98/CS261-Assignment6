@@ -160,15 +160,33 @@ class HashMap:
 
     def get(self, key: str) -> object:
         """
-        TODO: Write this implementation
+        This method returns the value associated with the given key.
         """
-        pass
+
+        index = self._hash_function(key) % self._capacity
+        bucket = self._buckets[index]
+
+        node = bucket.contains(key)
+
+        if node is not None:
+            return node.value
+
+        return None
 
     def contains_key(self, key: str) -> bool:
         """
-        TODO: Write this implementation
+        Return true if the given key is in the hash map, otherwise False.
         """
-        pass
+
+        index = self._hash_function(key) % self._capacity
+        bucket = self._buckets[index]
+
+        node = bucket.contains(key)
+
+        if node is not None:
+            return True
+
+        return False
 
     def remove(self, key: str) -> None:
         """
