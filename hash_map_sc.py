@@ -201,9 +201,19 @@ class HashMap:
 
     def get_keys_and_values(self) -> DynamicArray:
         """
-        TODO: Write this implementation
+        This method returns a dynamic array where each index contains a tuple of a key/value pair
+        stored in the hash map.
         """
-        pass
+        result = DynamicArray()
+
+        for i in range(self._capacity):
+            bucket = self._buckets[i]
+
+            for node in bucket:
+                result.append((node.key,node.value))
+
+        return result
+
 
     def clear(self) -> None:
         """
