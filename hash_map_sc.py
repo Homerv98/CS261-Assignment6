@@ -128,7 +128,7 @@ class HashMap:
         self._capacity = new_capacity
         self._size = 0
 
-        for x in range(self._capacity):
+        for _ in range(self._capacity):
             self._buckets.append(LinkedList())
 
         for i in range(old_buckets.length()):
@@ -190,9 +190,14 @@ class HashMap:
 
     def remove(self, key: str) -> None:
         """
-        TODO: Write this implementation
+        Remove the given key and its associated value from the hash map.
+        If the key is not in the hash map, do noting.
         """
-        pass
+        index = self._hash_function(key) % self._capacity
+        bucket = self._buckets[index]
+
+        if bucket.remove(key):
+            self._size -= 1
 
     def get_keys_and_values(self) -> DynamicArray:
         """
