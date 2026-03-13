@@ -230,11 +230,41 @@ class HashMap:
 
 def find_mode(da: DynamicArray) -> tuple[DynamicArray, int]:
     """
-    TODO: Write this implementatio
+    This function will return a tuple containing, in this order, a dynamic
+    array comprising the mode value(s) of the given array and an integer
+    representing the highest frequency of occurrence for the mode value(s).
     """
-    # if you'd like to use a hash map,
-    # use this instance of your Separate Chaining HashMap
-    map = HashMap()
+    counts = HashMap()
+    modes = DynamicArray()
+    added = HashMap()
+    max_frequency = 0
+
+    # count frequencies using string keys
+    for i in range(da.length()):
+        value = da[i]
+        key = str(value)
+
+        current = counts.get(key)
+        if current is None:
+            counts.put(key, 1)
+            current = 1
+        else:
+            counts.put(key, current + 1)
+            current = current + 1
+
+        if current > max_frequency:
+            max_frequency = current
+
+    #collect all unique values whose count == max_frequency
+    for i in range(da.length()):
+        value = da[i]
+        key = str(value)
+
+        if counts.get(key) == max_frequency and not added.contains_key(key):
+            modes.append(value)
+            added.put(key, True)
+
+    return modes, max_frequency
 
 
 # ------------------- BASIC TESTING ---------------------------------------- #
