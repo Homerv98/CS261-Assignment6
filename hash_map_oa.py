@@ -85,7 +85,7 @@ class HashMap:
 
     # ------------------------------------------------------------------ #
 
-    def put(self, key: str, value: object) -> None
+    def put(self, key: str, value: object) -> None:
         """
         Update the given key/value pair or add a new one.
         Resize to double capacity if load factor is >= 0.5 before inserting.
@@ -121,7 +121,6 @@ class HashMap:
         if first_tombstone is not None:
             self._buckets[first_tombstone] = HashEntry(key, value)
             self._size += 1
-
 
     def resize_table(self, new_capacity: int) -> None:
         """
@@ -161,11 +160,9 @@ class HashMap:
         Return the number of empty buckets in the hash table.
         """
         empty = 0
-
         for i in range(self._capacity):
             if self._buckets[i] is None:
                 empty += 1
-
         return empty
 
     def get(self, key: str) -> object:
@@ -192,30 +189,7 @@ class HashMap:
 
     def contains_key(self, key: str) -> bool:
         """
-        Return the value associated with the given key.
-        If key is not present, return None.
-        """
-            index = self._hash_function(key) % self._capacity
-            j = 0
-
-            while j < self._capacity:
-                probe_index = (index + j * j) % self._capacity
-                entry = self._buckets[probe_index]
-
-                if entry is None:
-                    return None
-
-                if not entry.is_tombstone and entry.key == key:
-                    return entry.value
-
-                j += 1
-
-            return None
-
-    def remove(self, key: str) -> None:
-        """
-        Return the value associated with the given key.
-        If key is not present, return None.
+        Return True if key is in the hash map, otherwise False.
         """
         index = self._hash_function(key) % self._capacity
         j = 0
@@ -225,47 +199,60 @@ class HashMap:
             entry = self._buckets[probe_index]
 
             if entry is None:
-                return None
+                return False
 
             if not entry.is_tombstone and entry.key == key:
-                return entry.value
+                return True
 
             j += 1
 
+        return False
 
+    def remove(self, key: str) -> None:
+        """
+        Remove the given key and its associated value from the hash map.
+        If the key is not in the map, do nothing.
+        """
+        index = self._hash_function(key) % self._capacity
+        j = 0
+
+        while j < self._capacity:
+            probe_index = (index + j * j) % self._capacity
+            entry = self._buckets[probe_index]
+
+            if entry is None:
+                return
+
+            if not entry.is_tombstone and entry.key == key:
+                entry.is_tombstone = True
+                self._size -= 1
+                return
+
+            j += 1
 
     def get_keys_and_values(self) -> DynamicArray:
         """
-        Return the value associated with the given key.
-        If key is not present, return None.
+        Return a DynamicArray of tuples containing all active key/value pairs.
         """
-            index = self._hash_function(key) % self._capacity
-            j = 0
+        result = DynamicArray()
 
-            while j < self._capacity:
-                probe_index = (index + j * j) % self._capacity
-                entry = self._buckets[probe_index]
+        for i in range(self._capacity):
+            entry = self._buckets[i]
+            if entry is not None and not entry.is_tombstone:
+                result.append((entry.key, entry.value))
 
-                if entry is None:
-                    return None
-
-                if not entry.is_tombstone and entry.key == key:
-                    return entry.value
-
-            j += 1
-
-        return None
+        return result
 
     def clear(self) -> None:
-    """
-    Clear the contents of the hash map without changing capacity.
-    """
-    self._buckets = DynamicArray()
+        """
+        Clear the contents of the hash map without changing capacity.
+        """
+        self._buckets = DynamicArray()
 
-    for _ in range(self._capacity):
-        self._buckets.append(None)
+        for _ in range(self._capacity):
+            self._buckets.append(None)
 
-    self._size = 0
+        self._size = 0
 
     def __iter__(self):
         """
@@ -274,9 +261,8 @@ class HashMap:
         self._index = 0
         return self
 
-
     def __next__(self):
-         """
+        """
         Return the next active HashEntry in the hash map.
         """
         while self._index < self._capacity:
@@ -287,7 +273,6 @@ class HashMap:
                 return entry
 
         raise StopIteration
-
 
 # ------------------- BASIC TESTING ---------------------------------------- #
 
