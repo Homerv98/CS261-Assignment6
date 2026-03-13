@@ -86,69 +86,202 @@ class HashMap:
     # ------------------------------------------------------------------ #
 
     def put(self, key: str, value: object) -> None
-        """" """
-        pass
+        """
+    Update the given key/value pair or add a new one.
+    Resize to double capacity if load factor is >= 0.5 before inserting.
+    """
+    if self.table_load() >= 0.5:
+        self.resize_table(self._capacity * 2)
+
+    index = self._hash_function(key) % self._capacity
+    j = 0
+    first_tombstone = None
+
+    while j < self._capacity:
+        probe_index = (index + j * j) % self._capacity
+        entry = self._buckets[probe_index]
+
+        if entry is None:
+            if first_tombstone is not None:
+                self._buckets[first_tombstone] = HashEntry(key, value)
+            else:
+                self._buckets[probe_index] = HashEntry(key, value)
+            self._size += 1
+            return
+
+        if entry.is_tombstone:
+            if first_tombstone is None:
+                first_tombstone = probe_index
+        elif entry.key == key:
+            entry.value = value
+            return
+
+        j += 1
+
+    if first_tombstone is not None:
+        self._buckets[first_tombstone] = HashEntry(key, value)
+        self._size += 1
 
 
     def resize_table(self, new_capacity: int) -> None:
-        """
-        TODO: Write this implementation
-        """
-        pass
+    """
+    Change the capacity of the hash table and rehash all active entries.
+    """
+    if new_capacity < self._size:
+        return
+
+    if not self._is_prime(new_capacity):
+        new_capacity = self._next_prime(new_capacity)
+
+    while self._size / new_capacity > 0.5:
+        new_capacity = self._next_prime(new_capacity * 2)
+
+    old_buckets = self._buckets
+
+    self._buckets = DynamicArray()
+    self._capacity = new_capacity
+    self._size = 0
+
+    for _ in range(self._capacity):
+        self._buckets.append(None)
+
+    for i in range(old_buckets.length()):
+        entry = old_buckets[i]
+        if entry is not None and not entry.is_tombstone:
+            self.put(entry.key, entry.value)
 
     def table_load(self) -> float:
+        def table_load(self) -> float:
         """
-        TODO: Write this implementation
+        Return the current hash table load factor.
         """
-        pass
+        return self._size / self._capacity
 
     def empty_buckets(self) -> int:
-        """
-        TODO: Write this implementation
-        """
-        pass
+        def table_load(self) -> float:
+            """
+            Return the current hash table load factor.
+            """
+            return self._size / self._capacity
 
     def get(self, key: str) -> object:
         """
-        TODO: Write this implementation
-        """
-        pass
+    Return the value associated with the given key.
+    If key is not present, return None.
+    """
+    index = self._hash_function(key) % self._capacity
+    j = 0
+
+    while j < self._capacity:
+        probe_index = (index + j * j) % self._capacity
+        entry = self._buckets[probe_index]
+
+        if entry is None:
+            return None
+
+        if not entry.is_tombstone and entry.key == key:
+            return entry.value
+
+        j += 1
+
+    return None
 
     def contains_key(self, key: str) -> bool:
-        """
-        TODO: Write this implementation
-        """
-        pass
+    """
+    Return the value associated with the given key.
+    If key is not present, return None.
+    """
+        index = self._hash_function(key) % self._capacity
+        j = 0
 
+        while j < self._capacity:
+            probe_index = (index + j * j) % self._capacity
+            entry = self._buckets[probe_index]
+
+            if entry is None:
+                return None
+
+            if not entry.is_tombstone and entry.key == key:
+                return entry.value
+
+            j += 1
+
+        return None
     def remove(self, key: str) -> None:
         """
-        TODO: Write this implementation
-        """
-        pass
+    Return the value associated with the given key.
+    If key is not present, return None.
+    """
+    index = self._hash_function(key) % self._capacity
+    j = 0
+
+    while j < self._capacity:
+        probe_index = (index + j * j) % self._capacity
+        entry = self._buckets[probe_index]
+
+        if entry is None:
+            return None
+
+        if not entry.is_tombstone and entry.key == key:
+            return entry.value
+
+        j += 1
+
+    return None
 
     def get_keys_and_values(self) -> DynamicArray:
-        """
-        TODO: Write this implementation
-        """
-        pass
+    """
+    Return the value associated with the given key.
+    If key is not present, return None.
+    """
+        index = self._hash_function(key) % self._capacity
+        j = 0
+
+        while j < self._capacity:
+            probe_index = (index + j * j) % self._capacity
+            entry = self._buckets[probe_index]
+
+            if entry is None:
+                return None
+
+            if not entry.is_tombstone and entry.key == key:
+                return entry.value
+
+            j += 1
+
+        return None
 
     def clear(self) -> None:
-        """
-        TODO: Write this implementation
-        """
-        pass
+    """
+    Clear the contents of the hash map without changing capacity.
+    """
+    self._buckets = DynamicArray()
+
+    for _ in range(self._capacity):
+        self._buckets.append(None)
+
+    self._size = 0
 
     def __iter__(self):
         """
-        TODO: Write this implementation
+        Return the iterator for the hash map.
         """
-        pass
+        self._index = 0
+        return self
+
 
     def __next__(self):
+         """
+        Return the next active HashEntry in the hash map.
         """
-        TODO: Write this implementation
-        """
-        pass
+        while self._index < self._capacity:
+            entry = self._buckets[self._index]
+            self._index += 1
+
+            if entry is not None and not entry.is_tombstone:
+                return entry
+
+        raise StopIteration
 
 
 # ------------------- BASIC TESTING ---------------------------------------- #
